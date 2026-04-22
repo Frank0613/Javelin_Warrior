@@ -12,7 +12,6 @@ public class JavelinFlight : MonoBehaviour
         if (rb.linearVelocity.magnitude > 0.5f)
             transform.rotation = Quaternion.LookRotation(rb.linearVelocity);
 
-        // 0.1 秒後才開始偵測碰撞
         Invoke(nameof(EnableCollision), 0.1f);
     }
 
