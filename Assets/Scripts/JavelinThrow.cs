@@ -12,10 +12,20 @@ public class JavelinThrow : MonoBehaviour
     public float velocityMultiplier = 6f;
     public float minThrowSpeed = 0.8f;
 
+    [Header("Debug")]
+    public bool debugMode = true;
+    public float debugThrowSpeed = 10f;
+
     private bool hasThrown = false;
 
     void Update()
     {
+        if (debugMode && Input.GetKeyDown(KeyCode.T) && !hasThrown)
+        {
+            Throw(transform.forward * debugThrowSpeed);
+            return;
+        }
+
         if (!accumulationSystem.IsCharged() || hasThrown) return;
 
         bool grabReleased = OVRInput.GetUp(OVRInput.Button.PrimaryHandTrigger, controllerHand);
@@ -33,14 +43,13 @@ public class JavelinThrow : MonoBehaviour
         foreach (var r in javelinMeshRenderers)
             r.enabled = false;
 
-        // Z 軸是長軸，用 transform.forward 就對了
-        Vector3 throwDirection = -transform.forward;
+        Vector3 throwDirection = transform.forward;
         float throwSpeed = realVelocity.magnitude * velocityMultiplier;
 
         GameObject projectile = Instantiate(
             javelinProjectilePrefab,
             transform.position,
-            transform.rotation  // 直接用 Javelin 的旋轉，Z 軸已經對齊
+            Quaternion.LookRotation(throwDirection)
         );
 
         Rigidbody rb = projectile.GetComponent<Rigidbody>();

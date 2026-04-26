@@ -17,7 +17,6 @@ public class JavelinTrajectory : MonoBehaviour
 
     void Update()
     {
-
         if (accumulationSystem.IsCharged())
         {
             lineRenderer.enabled = true;
@@ -32,7 +31,7 @@ public class JavelinTrajectory : MonoBehaviour
     void DrawTrajectory()
     {
         Vector3 startPos = transform.position;
-        Vector3 throwDirection = -transform.forward;
+        Vector3 throwDirection = transform.forward;
 
         Vector3 localVelocity = OVRInput.GetLocalControllerVelocity(controllerHand);
         Vector3 worldVelocity = transform.root.TransformDirection(localVelocity);
@@ -65,5 +64,8 @@ public class JavelinTrajectory : MonoBehaviour
 
             pos = nextPos;
         }
+
+        lineRenderer.positionCount = maxSteps;
+        lineRenderer.SetPositions(points);
     }
 }
