@@ -33,6 +33,6 @@ public class JavelinFlight : MonoBehaviour
     {
         if (!canCollide) return;
 
-        rb.isKinematic = true;
+        Destroy(gameObject);
     }
 }
