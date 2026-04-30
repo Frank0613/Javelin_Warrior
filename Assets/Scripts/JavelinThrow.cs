@@ -43,13 +43,18 @@ public class JavelinThrow : MonoBehaviour
         foreach (var r in javelinMeshRenderers)
             r.enabled = false;
 
-        Vector3 throwDirection = transform.forward;
+        // 完全用揮手方向和力道
+        Vector3 throwDirection = realVelocity.normalized;
         float throwSpeed = realVelocity.magnitude * velocityMultiplier;
+
+        // 生成旋轉對齊揮手方向，Z 軸歸零防歪
+        Vector3 euler = Quaternion.LookRotation(throwDirection).eulerAngles;
+        euler.z = 0f;
 
         GameObject projectile = Instantiate(
             javelinProjectilePrefab,
             transform.position,
-            Quaternion.LookRotation(throwDirection)
+            Quaternion.Euler(euler)
         );
 
         Rigidbody rb = projectile.GetComponent<Rigidbody>();

@@ -76,6 +76,20 @@ AnimatorController:
     m_IKPass: 0
     m_SyncedLayerAffectsTiming: 0
     m_Controller: {fileID: 9100000}
+--- !u!1109 &100780707223040678
+AnimatorTransition:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_Conditions: []
+  m_DstStateMachine: {fileID: 0}
+  m_DstState: {fileID: 7813303006590616662}
+  m_Solo: 0
+  m_Mute: 0
+  m_IsExit: 0
+  serializedVersion: 1
 --- !u!1107 &434637266107658259
 AnimatorStateMachine:
   serializedVersion: 6
@@ -107,13 +121,14 @@ AnimatorStateMachine:
   - {fileID: -5635165449947263494}
   - {fileID: 5367013120758127978}
   - {fileID: 1913863172683958976}
+  - {fileID: 100780707223040678}
   m_StateMachineTransitions: {}
   m_StateMachineBehaviours: []
   m_AnyStatePosition: {x: 50, y: 20, z: 0}
   m_EntryPosition: {x: 50, y: 120, z: 0}
   m_ExitPosition: {x: 800, y: 120, z: 0}
   m_ParentStateMachinePosition: {x: 800, y: 20, z: 0}
-  m_DefaultState: {fileID: 7004193499462276533}
+  m_DefaultState: {fileID: 7813303006590616662}
 --- !u!1109 &1913863172683958976
 AnimatorTransition:
   m_ObjectHideFlags: 1
