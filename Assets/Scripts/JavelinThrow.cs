@@ -6,7 +6,11 @@ public class JavelinThrow : MonoBehaviour
     public OVRInput.Controller controllerHand = OVRInput.Controller.LTouch;
     public Renderer[] javelinMeshRenderers;
     public GameObject javelinProjectilePrefab;
-    public Accumulation_test accumulationSystem;
+    public ChargingArea accumulationSystem;
+
+    public JavelinEffects javelinEffects;
+
+    public GameObject angleUI;
 
     [Header("Throw Settings")]
     public float velocityMultiplier = 6f;
@@ -18,8 +22,13 @@ public class JavelinThrow : MonoBehaviour
 
     private bool hasThrown = false;
 
+    public bool HasThrown() => hasThrown;
+
     void Update()
     {
+        if (GameManager.Instance != null && !GameManager.Instance.IsPlayerTurn())
+            return;
+
         if (debugMode && Input.GetKeyDown(KeyCode.T) && !hasThrown)
         {
             Throw(transform.forward * debugThrowSpeed);
@@ -43,11 +52,12 @@ public class JavelinThrow : MonoBehaviour
         foreach (var r in javelinMeshRenderers)
             r.enabled = false;
 
-        // 完全用揮手方向和力道
+        GetComponent<JavelinEffects>().HideAll();
+        if (angleUI != null) angleUI.SetActive(false);
+
         Vector3 throwDirection = realVelocity.normalized;
         float throwSpeed = realVelocity.magnitude * velocityMultiplier;
 
-        // 生成旋轉對齊揮手方向，Z 軸歸零防歪
         Vector3 euler = Quaternion.LookRotation(throwDirection).eulerAngles;
         euler.z = 0f;
 
@@ -61,13 +71,16 @@ public class JavelinThrow : MonoBehaviour
         rb.linearVelocity = throwDirection * throwSpeed;
 
         accumulationSystem.ConsumeCharge();
-        Invoke(nameof(ResetJavelin), 3f);
     }
 
-    void ResetJavelin()
+    public void ResetJavelin()
     {
         hasThrown = false;
         foreach (var r in javelinMeshRenderers)
             r.enabled = true;
+
+        if (javelinEffects != null)
+            javelinEffects.Showup(true);
+        if (angleUI != null) angleUI.SetActive(true);
     }
 }

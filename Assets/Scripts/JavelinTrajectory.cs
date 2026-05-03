@@ -4,7 +4,7 @@ public class JavelinTrajectory : MonoBehaviour
 {
     [Header("References")]
     public OVRInput.Controller controllerHand = OVRInput.Controller.LTouch;
-    public Accumulation_test accumulationSystem;
+    public ChargingArea accumulationSystem;
     public LineRenderer lineRenderer;
 
     [Header("Settings")]

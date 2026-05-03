@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class JavelinFlight : MonoBehaviour
 {
+    public GameObject explosionPrefab;
+
     private Rigidbody rb;
     private bool canCollide = false;
 
@@ -13,6 +15,7 @@ public class JavelinFlight : MonoBehaviour
             transform.rotation = Quaternion.LookRotation(rb.linearVelocity);
 
         Invoke(nameof(EnableCollision), 0.1f);
+        Invoke(nameof(MissedDestroy), 5f);
     }
 
     void EnableCollision()
@@ -33,6 +36,27 @@ public class JavelinFlight : MonoBehaviour
     {
         if (!canCollide) return;
 
+        bool hitBoss = collision.gameObject.GetComponent<BossHitBox>() != null;
+
+        if (explosionPrefab != null)
+        {
+            GameObject fx = Instantiate(explosionPrefab, transform.position, Quaternion.identity);
+            Destroy(fx, 3f);
+        }
+
+        if (!hitBoss && GameManager.Instance != null)
+        {
+            GameManager.Instance.OnPlayerMissed();
+        }
+
+        CancelInvoke(nameof(MissedDestroy));
+        Destroy(gameObject);
+    }
+
+    void MissedDestroy()
+    {
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnPlayerMissed();
         Destroy(gameObject);
     }
 }

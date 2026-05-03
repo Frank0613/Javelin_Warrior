@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,10 +14,10 @@ public class BossHealth : MonoBehaviour
     [Header("References")]
     public Slider healthSlider;
     public GameObject healthCanvas;
+    public CanvasGroup healthCanvasGroup;
 
     [Header("Settings")]
-    public float deathAnimDuration = 2f; // 死亡動畫長度，自己調
-
+    public float fadeDuration = 1f;
     private float currentHealth = 100f;
     private Animator animator;
     private bool isDead = false;
@@ -26,6 +27,7 @@ public class BossHealth : MonoBehaviour
         animator = GetComponent<Animator>();
         healthSlider.maxValue = 100f;
         healthSlider.value = 100f;
+        healthCanvasGroup.alpha = 0f;
     }
 
     public void TakeHit(BodyPart partName)
@@ -58,18 +60,35 @@ public class BossHealth : MonoBehaviour
         {
             isDead = true;
             healthCanvas.SetActive(false);
+            StartCoroutine(FadeCanvas(0f));
             animator.SetTrigger("die");
-            Debug.Log("Boss Dead");
-            Invoke(nameof(DestroyBoss), deathAnimDuration);
         }
         else
         {
             animator.SetTrigger("hurt");
         }
     }
-
-    void DestroyBoss()
+    public void ShowHealthBar()
     {
-        Destroy(gameObject);
+        StartCoroutine(FadeCanvas(1f));
     }
+
+    IEnumerator FadeCanvas(float targetAlpha)
+    {
+        float startAlpha = healthCanvasGroup.alpha;
+        float elapsed = 0f;
+
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            healthCanvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, elapsed / fadeDuration);
+            yield return null;
+        }
+
+        healthCanvasGroup.alpha = targetAlpha;
+
+        if (targetAlpha == 0f && healthCanvas != null)
+            healthCanvas.SetActive(false);
+    }
+    public bool IsDead() => isDead;
 }

@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class BossHitBox : MonoBehaviour
 {
-    public BodyPart partName; // Inspector 裡填：Head、Body、Arm_Left 等
+    public BodyPart partName;
     private BossHealth bossHealth;
 
     void Start()
@@ -15,6 +15,9 @@ public class BossHitBox : MonoBehaviour
         if (collision.gameObject.GetComponent<JavelinFlight>() != null)
         {
             bossHealth.TakeHit(partName);
+
+            if (GameManager.Instance != null)
+                GameManager.Instance.OnPlayerAttacked();
         }
     }
 }
