@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -18,7 +19,9 @@ public class GameManager : MonoBehaviour
     public float bossAttackDelay = 1f;
 
     [Header("Game Over")]
-    public GameOverMenu gameOverMenu;
+    public FadeUI fadeUI;
+    public PostProcessingController postProcessingController;
+    public float gameOverDelay = 2f;
     public int maxBossAttacks = 3;
     private int bossAttackCount = 0;
 
@@ -131,12 +134,9 @@ public class GameManager : MonoBehaviour
 
         if (bossAttackCount >= maxBossAttacks)
         {
-            Debug.Log("Game Over!");
-            if (gameOverMenu != null)
-                gameOverMenu.TriggerGameOver();
+            StartCoroutine(GameOverSequence());
         }
     }
-
     public void EndBossTurn()
     {
         isBossAttacking = false;
@@ -151,5 +151,20 @@ public class GameManager : MonoBehaviour
 
         if (bossPatrol != null)
             bossPatrol.StartPatrol();
+    }
+    IEnumerator GameOverSequence()
+    {
+        if (postProcessingController != null)
+            yield return StartCoroutine(postProcessingController.GameOverEffect(gameOverDelay));
+        else
+            yield return new WaitForSeconds(gameOverDelay);
+
+        if (fadeUI != null)
+        {
+            fadeUI.FadeOut();
+            yield return new WaitForSeconds(fadeUI.fadeDuration);
+        }
+
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }
