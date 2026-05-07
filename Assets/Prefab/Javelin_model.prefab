@@ -306,7 +306,7 @@ GameObject:
   - component: {fileID: 1925100476341591467}
   - component: {fileID: -3339709526091444316}
   m_Layer: 0
-  m_Name: javelin_model
+  m_Name: Javelin_model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -357,8 +357,8 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7950675044302143115}
   serializedVersion: 4
-  m_Mass: 10
-  m_Drag: 0.5
+  m_Mass: 18
+  m_Drag: 0.8
   m_AngularDrag: 0
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}

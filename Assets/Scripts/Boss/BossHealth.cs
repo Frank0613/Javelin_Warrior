@@ -62,6 +62,7 @@ public class BossHealth : MonoBehaviour
             healthCanvas.SetActive(false);
             StartCoroutine(FadeCanvas(0f));
             animator.SetTrigger("die");
+            GetComponent<BossPatrol>().StopPatrol();
         }
         else
         {

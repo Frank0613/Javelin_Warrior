@@ -12,10 +12,10 @@ public class GameManager : MonoBehaviour
     public Animator bossAnimator;
     public JavelinThrow javelinThrow;
     public BossAnimEvent bossAnimEvent;
+    public BossPatrol bossPatrol;
 
     [Header("Settings")]
     public float bossAttackDelay = 1f;
-    public float angryInterval = 5f;
 
     [Header("Game Over")]
     public GameOverMenu gameOverMenu;
@@ -25,7 +25,6 @@ public class GameManager : MonoBehaviour
     private Turn currentTurn = Turn.Player;
     private bool isBossAttacking = false;
     private bool gameStarted = false;
-    private float angryTimer = 0f;
 
     void Awake()
     {
@@ -37,27 +36,12 @@ public class GameManager : MonoBehaviour
         StartCoroutine(WaitForShowup());
     }
 
-    void Update()
-    {
-        if (gameStarted && currentTurn == Turn.Player && !isBossAttacking
-            && !bossHealth.IsDead())
-        {
-            angryTimer += Time.deltaTime;
-            if (angryTimer >= angryInterval)
-            {
-                angryTimer = 0f;
-                bossAnimator.SetTrigger("angry");
-            }
-        }
-    }
-
     IEnumerator WaitForShowup()
     {
         if (javelinThrow != null)
         {
             foreach (var r in javelinThrow.javelinMeshRenderers)
                 r.enabled = false;
-
             if (javelinThrow.angleUI != null)
                 javelinThrow.angleUI.SetActive(false);
         }
@@ -72,10 +56,13 @@ public class GameManager : MonoBehaviour
                 break;
             yield return null;
         }
-        bossHealth.ShowHealthBar();
 
+        bossHealth.ShowHealthBar();
         if (javelinThrow != null)
             javelinThrow.ResetJavelin();
+
+        if (bossPatrol != null)
+            bossPatrol.StartPatrol();
 
         gameStarted = true;
         Debug.Log("Game Start! Player Turn.");
@@ -101,10 +88,10 @@ public class GameManager : MonoBehaviour
 
     IEnumerator WaitHurtThenAttack()
     {
-        yield return new WaitForSeconds(0.1f);
+        if (bossPatrol != null)
+            yield return StartCoroutine(bossPatrol.FaceFront());
 
         int idleHash = Animator.StringToHash("Idle");
-
         while (true)
         {
             var stateInfo = bossAnimator.GetCurrentAnimatorStateInfo(0);
@@ -119,42 +106,50 @@ public class GameManager : MonoBehaviour
 
         isBossAttacking = true;
         bossAnimator.SetTrigger("attack");
-        Debug.Log("Boss Attack!");
-
         bossAnimEvent.WaitForAttackEnd();
     }
 
     IEnumerator WaitThenAttack()
     {
+        if (bossPatrol != null)
+            yield return StartCoroutine(bossPatrol.FaceFront());
+
         yield return new WaitForSeconds(bossAttackDelay);
 
         if (bossHealth.IsDead()) yield break;
 
         isBossAttacking = true;
         bossAnimator.SetTrigger("attack");
-        Debug.Log("Boss Attack!");
-
         bossAnimEvent.WaitForAttackEnd();
     }
 
-    public void EndBossTurn()
+    // 由 Animation Event 呼叫，計算 Boss 攻擊次數
+    public void IncrementBossAttackCount()
     {
-        isBossAttacking = false;
-        currentTurn = Turn.Player;
-        angryTimer = 0f;
-
         bossAttackCount++;
+        Debug.Log($"Boss attack count: {bossAttackCount}");
 
         if (bossAttackCount >= maxBossAttacks)
         {
             Debug.Log("Game Over!");
             if (gameOverMenu != null)
                 gameOverMenu.TriggerGameOver();
-            return;
         }
+    }
+
+    public void EndBossTurn()
+    {
+        isBossAttacking = false;
+        currentTurn = Turn.Player;
+
+        // 已經 GameOver 就不繼續
+        if (bossAttackCount >= maxBossAttacks)
+            return;
 
         if (javelinThrow != null)
             javelinThrow.ResetJavelin();
 
+        if (bossPatrol != null)
+            bossPatrol.StartPatrol();
     }
 }

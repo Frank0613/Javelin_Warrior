@@ -7,7 +7,6 @@ public class BossAnimEvent : MonoBehaviour
     public ParticleSystem attackParticle;
     public ParticleSystem smokeParticle;
 
-
     private Animator animator;
     private int attackHash;
 
@@ -52,12 +51,18 @@ public class BossAnimEvent : MonoBehaviour
         GameManager.Instance.EndBossTurn();
     }
 
-    // 由 Animation Event 呼叫
+    // 由 Animation Event 呼叫，攻擊特效
     public void AttackEffect()
     {
         if (attackParticle != null)
             attackParticle.Play();
         Debug.Log("Attack effect played!");
+    }
+
+    // 由 Animation Event 呼叫，計算 Boss 攻擊次數（在 attack 動畫尾端觸發）
+    public void CountBossAttack()
+    {
+        GameManager.Instance.IncrementBossAttackCount();
     }
 
     public void StopSmokeEffect()
