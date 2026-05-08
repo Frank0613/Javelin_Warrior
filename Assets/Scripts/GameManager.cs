@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Settings")]
     public float bossAttackDelay = 1f;
+    public float meteoriteJavelinCooldown = 2f;
 
     [Header("Game Over")]
     public FadeUI fadeUI;
@@ -71,10 +72,17 @@ public class GameManager : MonoBehaviour
         Debug.Log("Game Start! Player Turn.");
     }
 
-    public bool IsPlayerTurn() => gameStarted && currentTurn == Turn.Player && !isBossAttacking;
+    public bool IsPlayerTurn()
+    {
+        if (!gameStarted) return false;
+        if (bossHealth != null && bossHealth.IsDead())
+            return !isBossAttacking; // boss 死後：isBossAttacking 當 javelin CD 用
+        return currentTurn == Turn.Player && !isBossAttacking;
+    }
 
     public void OnPlayerAttacked()
     {
+        if (bossHealth != null && bossHealth.IsDead()) { OnJavelinLanded(); return; }
         if (currentTurn != Turn.Player) return;
 
         currentTurn = Turn.Boss;
@@ -83,10 +91,17 @@ public class GameManager : MonoBehaviour
 
     public void OnPlayerMissed()
     {
+        if (bossHealth != null && bossHealth.IsDead()) { OnJavelinLanded(); return; }
         if (currentTurn != Turn.Player) return;
 
         currentTurn = Turn.Boss;
         StartCoroutine(WaitThenAttack());
+    }
+
+    public void OnJavelinLanded()
+    {
+        if (isBossAttacking) return;
+        StartCoroutine(MeteoriteJavelinReset());
     }
 
     IEnumerator WaitHurtThenAttack()
@@ -152,6 +167,15 @@ public class GameManager : MonoBehaviour
         if (bossPatrol != null)
             bossPatrol.StartPatrol();
     }
+    IEnumerator MeteoriteJavelinReset()
+    {
+        isBossAttacking = true;
+        yield return new WaitForSeconds(meteoriteJavelinCooldown);
+        isBossAttacking = false;
+        if (javelinThrow != null)
+            javelinThrow.ResetJavelin();
+    }
+
     IEnumerator GameOverSequence()
     {
         if (postProcessingController != null)
