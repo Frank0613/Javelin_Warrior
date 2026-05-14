@@ -18,6 +18,10 @@ public class BossHealth : MonoBehaviour
 
     [Header("Settings")]
     public float fadeDuration = 1f;
+
+    [Header("Death")]
+    public GameObject[] bodyParts;
+
     private float currentHealth = 100f;
     private Animator animator;
     private bool isDead = false;
@@ -63,6 +67,7 @@ public class BossHealth : MonoBehaviour
             StartCoroutine(FadeCanvas(0f));
             animator.SetTrigger("die");
             GetComponent<BossPatrol>().StopPatrol();
+            DisableBodyColliders();
         }
         else
         {
@@ -92,4 +97,15 @@ public class BossHealth : MonoBehaviour
             healthCanvas.SetActive(false);
     }
     public bool IsDead() => isDead;
+
+    void DisableBodyColliders()
+    {
+        for (int i = 0; i < bodyParts.Length; i++)
+        {
+            if (bodyParts[i] == null) continue;
+            Collider[] cols = bodyParts[i].GetComponents<Collider>();
+            for (int j = 0; j < cols.Length; j++)
+                cols[j].enabled = false;
+        }
+    }
 }

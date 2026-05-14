@@ -1499,7 +1499,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7834434380170384362, guid: 68101499d07aced4aa0ded4acb624942, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3108,12 +3108,13 @@ MonoBehaviour:
   electricityObject: {fileID: 494484165}
   explosionObject: {fileID: 1764631361}
   smokeObject: {fileID: 560471568}
-  emissionFadeDuration: 3
-  electricityToExplosionDelay: 5
+  emissionFadeDuration: 1.5
+  electricityToExplosionDelay: 3
   smokeRampUpDuration: 2
   smokePeakRate: 150
-  smokePeakDuration: 3
-  smokeRampDownDuration: 2
+  smokePeakDuration: 1
+  smokeRampDownDuration: 1
+  bossDefeatTransition: {fileID: 1503874987}
   rockMat: {fileID: 2100000, guid: e889ac576ec328341b8c3911a1343d93, type: 2}
 --- !u!4 &116546975
 Transform:
@@ -17230,6 +17231,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7956947558258921731, guid: b80abba72c6c3504dbdbeafc88ce5890, type: 3}
   m_PrefabInstance: {fileID: 720918709}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &722798976 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4717799323456031078, guid: cf18aac52cf0d0145a13f4abb450c882, type: 3}
+  m_PrefabInstance: {fileID: 1458091369}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &724093566
 GameObject:
   m_ObjectHideFlags: 0
@@ -17798,7 +17804,6 @@ GameObject:
   m_Component:
   - component: {fileID: 755110066}
   - component: {fileID: 755110065}
-  - component: {fileID: 755110064}
   m_Layer: 0
   m_Name: UIManager
   m_TagString: Untagged
@@ -17806,22 +17811,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &755110064
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 755110063}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 32d698fcd74f99b40b8fdc1655bd262d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ui: {fileID: 0}
-  menuSceneName: Menu
-  pauseMenu: {fileID: 755110065}
-  showDelay: 2
 --- !u!114 &755110065
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -49835,11 +49824,11 @@ Transform:
   - {fileID: 1987292036}
   - {fileID: 1252016702}
   - {fileID: 1222887180}
-  - {fileID: 1458091370}
   - {fileID: 276258883}
   - {fileID: 1055872257}
   - {fileID: 881919202}
   - {fileID: 2049350409}
+  - {fileID: 1458091370}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1303935293
@@ -53562,7 +53551,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4717799323456031077, guid: cf18aac52cf0d0145a13f4abb450c882, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.5
+      value: 1.7
       objectReference: {fileID: 0}
     - target: {fileID: 4717799323456031077, guid: cf18aac52cf0d0145a13f4abb450c882, type: 3}
       propertyPath: m_LocalPosition.z
@@ -53598,7 +53587,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4717799323456031078, guid: cf18aac52cf0d0145a13f4abb450c882, type: 3}
       propertyPath: m_Name
-      value: FantasyForest_Water_01
+      value: Water
       objectReference: {fileID: 0}
     - target: {fileID: 4717799323456031078, guid: cf18aac52cf0d0145a13f4abb450c882, type: 3}
       propertyPath: m_IsActive
@@ -54574,6 +54563,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1503874986}
   - component: {fileID: 1503874985}
+  - component: {fileID: 1503874987}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -54619,6 +54609,34 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1503874987
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1503874984}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9a17607d8b3e864d811446e57be84d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  terrain: {fileID: 1414061882}
+  deadTreeIndexA: 6
+  deadTreeIndexB: 7
+  lushTreeIndexA: 2
+  lushTreeIndexB: 3
+  river: {fileID: 722798976}
+  fireParticles:
+  - {fileID: 2309251078446054396}
+  - {fileID: 1708887834}
+  - {fileID: 1721785421}
+  - {fileID: 1685518361}
+  nightSkybox: {fileID: 2100000, guid: cc421da483ed06c49933077a621bff25, type: 2}
+  daySkybox: {fileID: 2100000, guid: 2bd8959f5fbd3644aa33af1a155fc147, type: 2}
+  nightFogColor: {r: 1, g: 0.113337204, b: 0, a: 1}
+  dayFogColor: {r: 0.7, g: 0.8, b: 0.9, a: 1}
+  triggerKey: 99
 --- !u!1001 &1513779290
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -116376,6 +116394,21 @@ MonoBehaviour:
   healthCanvas: {fileID: 427068879}
   healthCanvasGroup: {fileID: 427068884}
   fadeDuration: 1
+  bodyParts:
+  - {fileID: 5791203034220732532}
+  - {fileID: 3631279711468255002}
+  - {fileID: 8974767652321049214}
+  - {fileID: 355418704225730438}
+  - {fileID: 2335289992073799565}
+  - {fileID: 7900946693748938632}
+  - {fileID: 6290203108940607769}
+  - {fileID: 9056634298551775356}
+  - {fileID: 1295946614329293373}
+  - {fileID: 8945485357208619231}
+  - {fileID: 6951655201582810544}
+  - {fileID: 4178096526941154019}
+  - {fileID: 8340976966636081230}
+  - {fileID: 2452161078027123281}
 --- !u!114 &9066836599525421740
 MonoBehaviour:
   m_ObjectHideFlags: 0

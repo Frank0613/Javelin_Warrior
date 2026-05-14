@@ -20,6 +20,9 @@ public class Meteorite : MonoBehaviour
     public float smokePeakDuration = 3f;
     public float smokeRampDownDuration = 2f;
 
+    [Header("Boss Defeat")]
+    public BossDefeatTransition bossDefeatTransition;
+
     public Material rockMat;
 
     private Collider rockCollider;
@@ -85,6 +88,10 @@ public class Meteorite : MonoBehaviour
         electricityObject.SetActive(false);
 
         yield return StartCoroutine(AnimateSmokeRate(0f, smokePeakRate, smokeRampUpDuration));
+
+        if (bossDefeatTransition != null)
+            bossDefeatTransition.TriggerTransition();
+
         yield return new WaitForSeconds(smokePeakDuration);
         yield return StartCoroutine(AnimateSmokeRate(smokePeakRate, 0f, smokeRampDownDuration));
     }
