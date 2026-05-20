@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
 public abstract class UIMenuBase : MonoBehaviour
@@ -16,12 +17,14 @@ public abstract class UIMenuBase : MonoBehaviour
 
     protected void Show()
     {
+        EventSystem.current.SetSelectedGameObject(null);
         ui.SetActive(true);
         Time.timeScale = 0f;
     }
 
     protected void Hide()
     {
+        EventSystem.current.SetSelectedGameObject(null);
         ui.SetActive(false);
         Time.timeScale = 1f;
     }
