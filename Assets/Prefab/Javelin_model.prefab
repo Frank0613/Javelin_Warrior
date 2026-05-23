@@ -357,8 +357,8 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7950675044302143115}
   serializedVersion: 4
-  m_Mass: 18
-  m_Drag: 0.8
+  m_Mass: 0.8
+  m_Drag: 0.05
   m_AngularDrag: 0
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -389,6 +389,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   explosionPrefab: {fileID: 2965222256817593503, guid: a164e676dbbd6e54587237e619372c98, type: 3}
+  gravityScale: 1
 --- !u!1001 &669987535521325349
 PrefabInstance:
   m_ObjectHideFlags: 0
