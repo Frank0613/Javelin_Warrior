@@ -25,10 +25,14 @@ public class ChargingArea : MonoBehaviour
         if (javelinThrow != null && javelinThrow.HasThrown()) return;
         if (GameManager.Instance != null && !GameManager.Instance.IsPlayerTurn()) return;
 
-        bool grabHeld = OVRInput.Get(OVRInput.Button.PrimaryHandTrigger, controllerHand)
-                        || Input.GetKey(KeyCode.Y);
+        if (Input.GetKeyDown(KeyCode.Y) && !isCharged)
+        {
+            isCharged = true;
+            if (javelinEffects != null) javelinEffects.ShowFinish(true);
+            Debug.Log("debug charge");
+        }
 
-        if (isJavelinInZone && grabHeld && !isCharged)
+        if (isJavelinInZone && !isCharged)
         {
             accumulateTimer += Time.deltaTime;
 
@@ -44,10 +48,6 @@ public class ChargingArea : MonoBehaviour
 
                 Debug.Log("success");
             }
-        }
-        else if (!grabHeld && !isCharged)
-        {
-            ResetAccumulation();
         }
     }
 
