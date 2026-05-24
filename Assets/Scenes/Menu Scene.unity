@@ -17657,10 +17657,15 @@ MonoBehaviour:
   accumulationSystem: {fileID: 0}
   javelinEffects: {fileID: 563637566}
   angleUI: {fileID: 1558758892}
-  velocityMultiplier: 6
+  debugText: {fileID: 0}
+  minThrowAcceleration: 3
   minThrowSpeed: 0.8
+  minLaunchSpeed: 10
+  maxLaunchSpeed: 16
+  referenceVelocity: 3
   debugMode: 1
   debugThrowSpeed: 2
+  peakWindow: 0.12
 --- !u!1001 &569332233
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -34950,7 +34955,7 @@ Terrain:
   m_GameObject: {fileID: 1414061880}
   m_Enabled: 1
   serializedVersion: 6
-  m_TerrainData: {fileID: 15600000, guid: 55b07c69fefd752469b02a7800027433, type: 2}
+  m_TerrainData: {fileID: 15600000, guid: 1ac5044c81ef5294ca58b49bf43dbe53, type: 2}
   m_TreeDistance: 1
   m_TreeBillboardDistance: 50
   m_TreeCrossFadeLength: 5

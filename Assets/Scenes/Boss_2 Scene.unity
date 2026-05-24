@@ -54853,7 +54853,7 @@ MonoBehaviour:
   terrain: {fileID: 1414061882}
   deadTreeIndexA: 6
   deadTreeIndexB: 7
-  lushTreeIndexA: 2
+  lushTreeIndexA: 0
   lushTreeIndexB: 3
   river: {fileID: 722798976}
   fireParticles:
