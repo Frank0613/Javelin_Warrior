@@ -19,6 +19,9 @@ public class BossHealth : MonoBehaviour
     [Header("Settings")]
     public float fadeDuration = 1f;
 
+    [Header("Simple Boss")]
+    public float uniformDamage = 0f;
+
     [Header("Death")]
     public GameObject[] bodyParts;
 
@@ -40,20 +43,27 @@ public class BossHealth : MonoBehaviour
 
         float damage = 0f;
 
-        switch (partName)
+        if (uniformDamage > 0f)
         {
-            case BodyPart.Head:
-                Debug.Log("Head");
-                damage = 50f;
-                break;
-            case BodyPart.Body:
-                Debug.Log("Body");
-                damage = 40f;
-                break;
-            default:
-                Debug.Log("Arm&Leg");
-                damage = 20f;
-                break;
+            damage = uniformDamage;
+        }
+        else
+        {
+            switch (partName)
+            {
+                case BodyPart.Head:
+                    Debug.Log("Head");
+                    damage = 50f;
+                    break;
+                case BodyPart.Body:
+                    Debug.Log("Body");
+                    damage = 40f;
+                    break;
+                default:
+                    Debug.Log("Arm&Leg");
+                    damage = 20f;
+                    break;
+            }
         }
 
         currentHealth -= damage;
@@ -66,7 +76,8 @@ public class BossHealth : MonoBehaviour
             healthCanvas.SetActive(false);
             StartCoroutine(FadeCanvas(0f));
             animator.SetTrigger("die");
-            GetComponent<BossPatrol>().StopPatrol();
+            var patrol = GetComponent<BossPatrol>();
+            if (patrol != null) patrol.StopPatrol();
             DisableBodyColliders();
         }
         else

@@ -109,6 +109,8 @@ public class GameManager : MonoBehaviour
         if (bossPatrol != null)
             yield return StartCoroutine(bossPatrol.FaceFront());
 
+        yield return null; // let hurt transition begin before checking for idle
+
         int idleHash = Animator.StringToHash("Idle");
         while (true)
         {

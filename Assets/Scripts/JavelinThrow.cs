@@ -110,7 +110,7 @@ public class JavelinThrow : MonoBehaviour
         if (debugText != null)
             debugText.text = $"{realVelocity.magnitude:F2} / {t:F2} / {throwSpeed:F2}";
 
-        Vector3 euler = Quaternion.LookRotation(throwDirection).eulerAngles;
+        Vector3 euler = Quaternion.LookRotation(-throwDirection).eulerAngles;
         euler.z = 0f;
 
         GameObject projectile = Instantiate(

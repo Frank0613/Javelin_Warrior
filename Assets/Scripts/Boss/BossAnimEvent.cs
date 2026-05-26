@@ -54,8 +54,7 @@ public class BossAnimEvent : MonoBehaviour
     // 由 Animation Event 呼叫，攻擊特效
     public void AttackEffect()
     {
-        if (attackParticle != null)
-            attackParticle.Play();
+        if (attackParticle != null) attackParticle.Play();
         Debug.Log("Attack effect played!");
     }
 
@@ -67,7 +66,6 @@ public class BossAnimEvent : MonoBehaviour
 
     public void StopSmokeEffect()
     {
-        if (smokeParticle != null)
-            smokeParticle.Stop();
+        if (smokeParticle != null) smokeParticle.Stop();
     }
 }

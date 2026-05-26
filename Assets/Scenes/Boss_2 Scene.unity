@@ -53328,8 +53328,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1451685557}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.38268343, y: -0, z: -0, w: 0.92387956}
-  m_LocalPosition: {x: 0, y: -15, z: -15}
+  m_LocalRotation: {x: -0.953717, y: 0, z: 0, w: -0.30070576}
+  m_LocalPosition: {x: 0, y: 17, z: 30}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -53337,7 +53337,7 @@ Transform:
   - {fileID: 6856531768094577568}
   - {fileID: 1743053287}
   m_Father: {fileID: 624321318}
-  m_LocalEulerAnglesHint: {x: -45, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -215, y: 0, z: 0}
 --- !u!120 &1451685559
 LineRenderer:
   serializedVersion: 2
@@ -116415,6 +116415,7 @@ MonoBehaviour:
   healthCanvas: {fileID: 427068879}
   healthCanvasGroup: {fileID: 427068884}
   fadeDuration: 1
+  uniformDamage: 0
   bodyParts:
   - {fileID: 5791203034220732532}
   - {fileID: 3631279711468255002}
