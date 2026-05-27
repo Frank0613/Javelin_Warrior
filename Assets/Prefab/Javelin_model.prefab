@@ -458,6 +458,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: VFX_Trail_Earth
       objectReference: {fileID: 0}
+    - target: {fileID: 9118899364160172090, guid: dc0d32e4741335241afdd5ebfb8bf32a, type: 3}
+      propertyPath: m_Resource
+      value: 
+      objectReference: {fileID: 8300000, guid: bbc62c2bc4fd31a4fbce296539fdf19a, type: 3}
+    - target: {fileID: 9118899364160172090, guid: dc0d32e4741335241afdd5ebfb8bf32a, type: 3}
+      propertyPath: m_audioClip
+      value: 
+      objectReference: {fileID: 8300000, guid: bbc62c2bc4fd31a4fbce296539fdf19a, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

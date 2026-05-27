@@ -7,6 +7,9 @@ public class BossAnimEvent : MonoBehaviour
     public ParticleSystem attackParticle;
     public ParticleSystem smokeParticle;
 
+    [Header("Audio")]
+    public SfxCue attackSfx;
+
     private Animator animator;
     private int attackHash;
 
@@ -58,6 +61,13 @@ public class BossAnimEvent : MonoBehaviour
         Debug.Log("Attack effect played!");
     }
 
+    // 由 Animation Event 呼叫，攻擊音效（在動畫指定時間點插入 Event 觸發）
+    public void PlayAttackSfx()
+    {
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(attackSfx);
+    }
+
     // 由 Animation Event 呼叫，計算 Boss 攻擊次數（在 attack 動畫尾端觸發）
     public void CountBossAttack()
     {
@@ -67,5 +77,11 @@ public class BossAnimEvent : MonoBehaviour
     public void StopSmokeEffect()
     {
         if (smokeParticle != null) smokeParticle.Stop();
+    }
+
+    // 由死亡動畫尾端的 Animation Event 呼叫
+    public void OnDeathAnimationEnd()
+    {
+        GameManager.Instance.OnBossDefeated();
     }
 }

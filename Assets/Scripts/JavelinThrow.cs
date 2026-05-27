@@ -12,7 +12,7 @@ public class JavelinThrow : MonoBehaviour
     public JavelinEffects javelinEffects;
 
     public GameObject angleUI;
-    public TMP_Text debugText;
+
 
     [Header("Throw Settings")]
     public float minThrowAcceleration = 3f;
@@ -24,6 +24,10 @@ public class JavelinThrow : MonoBehaviour
     [Header("Debug")]
     public bool debugMode = true;
     public float debugThrowSpeed = 10f;
+
+    [Header("Audio")]
+    public SfxCue appearSfx;
+    public SfxCue throwSfx;
 
     [Header("Peak Velocity Window")]
     public float peakWindow = 0.12f;
@@ -39,8 +43,6 @@ public class JavelinThrow : MonoBehaviour
 
     void Start()
     {
-        if (debugText != null)
-            debugText.text = "-- / -- / --";
     }
 
     void Update()
@@ -97,6 +99,9 @@ public class JavelinThrow : MonoBehaviour
     {
         hasThrown = true;
 
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(throwSfx);
+
         foreach (var r in javelinMeshRenderers)
             r.enabled = false;
 
@@ -107,8 +112,6 @@ public class JavelinThrow : MonoBehaviour
         float t = Mathf.Clamp01(realVelocity.magnitude / referenceVelocity);
         float throwSpeed = Mathf.Lerp(minLaunchSpeed, maxLaunchSpeed, t);
         Debug.Log($"[Throw] inputVel={realVelocity.magnitude:F2} t={t:F2} throwSpeed={throwSpeed:F2} dir={throwDirection}");
-        if (debugText != null)
-            debugText.text = $"{realVelocity.magnitude:F2} / {t:F2} / {throwSpeed:F2}";
 
         Vector3 euler = Quaternion.LookRotation(-throwDirection).eulerAngles;
         euler.z = 0f;
@@ -137,5 +140,8 @@ public class JavelinThrow : MonoBehaviour
         if (javelinEffects != null)
             javelinEffects.Showup(true);
         if (angleUI != null) angleUI.SetActive(true);
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(appearSfx);
     }
 }

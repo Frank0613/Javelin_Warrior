@@ -25,6 +25,9 @@ public class BossHealth : MonoBehaviour
     [Header("Death")]
     public GameObject[] bodyParts;
 
+    [Header("Audio")]
+    public SfxCue hurtSfx;
+
     private float currentHealth = 100f;
     private Animator animator;
     private bool isDead = false;
@@ -83,6 +86,8 @@ public class BossHealth : MonoBehaviour
         else
         {
             animator.SetTrigger("hurt");
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlaySFX(hurtSfx);
         }
     }
     public void ShowHealthBar()

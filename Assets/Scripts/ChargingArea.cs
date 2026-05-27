@@ -15,40 +15,79 @@ public class ChargingArea : MonoBehaviour
     public GameObject chargeEffect;
     public GameObject[] finishEffects;
 
+    [Header("Audio")]
+    public AudioSource chargeSource; // 蓄力音效（進入範圍時播一次，不 loop）
+
     private bool isJavelinInZone = false;
     private bool isCharged = false;
     private float accumulateTimer = 0f;
     private JavelinEffects javelinEffects;
 
+    private bool wasChargeStart = false;
+    private bool wasInZone = false;
+
+    void Awake()
+    {
+        if (chargeSource != null)
+        {
+            chargeSource.loop = false;
+            chargeSource.playOnAwake = false;
+        }
+    }
+
     void Update()
     {
-        if (javelinThrow != null && javelinThrow.HasThrown()) return;
-        if (GameManager.Instance != null && !GameManager.Instance.IsPlayerTurn()) return;
+        bool active = !(javelinThrow != null && javelinThrow.HasThrown())
+                   && !(GameManager.Instance != null && !GameManager.Instance.IsPlayerTurn());
 
-        if (Input.GetKeyDown(KeyCode.Y) && !isCharged)
+        if (active)
         {
-            isCharged = true;
-            if (javelinEffects != null) javelinEffects.ShowFinish(true);
-            Debug.Log("debug charge");
-        }
-
-        if (isJavelinInZone && !isCharged)
-        {
-            accumulateTimer += Time.deltaTime;
-
-            if (javelinEffects != null)
-                javelinEffects.ShowCharge(true);
-
-            if (accumulateTimer >= 3f)
+            if (Input.GetKeyDown(KeyCode.Y) && !isCharged)
             {
                 isCharged = true;
+                if (javelinEffects != null) javelinEffects.ShowFinish(true);
+                Debug.Log("debug charge");
+            }
+
+            if (isJavelinInZone && !isCharged)
+            {
+                accumulateTimer += Time.deltaTime;
 
                 if (javelinEffects != null)
-                    javelinEffects.ShowFinish(true);
+                    javelinEffects.ShowCharge(true);
 
-                Debug.Log("success");
+                if (accumulateTimer >= 3f)
+                {
+                    isCharged = true;
+
+                    if (javelinEffects != null)
+                        javelinEffects.ShowFinish(true);
+
+                    Debug.Log("success");
+                }
             }
         }
+
+        UpdateChargeSound(active);
+    }
+
+    void UpdateChargeSound(bool active)
+    {
+        if (chargeSource == null) return;
+
+        bool chargeStart = active && isJavelinInZone && !isCharged; // 可開始蓄力的狀態
+        bool inZone = active && isJavelinInZone;
+
+        // 進入蓄力狀態的瞬間 → 播一次（已蓄滿時進範圍不會觸發）
+        if (chargeStart && !wasChargeStart)
+            chargeSource.Play();
+
+        // 離開區域 → 停止（留在範圍內則讓它自然播完）
+        if (!inZone && wasInZone)
+            chargeSource.Stop();
+
+        wasChargeStart = chargeStart;
+        wasInZone = inZone;
     }
 
     void OnTriggerEnter(Collider other)

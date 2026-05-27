@@ -8,7 +8,7 @@ public class Meteorite : MonoBehaviour
     public GameObject mainRock;
     public GameObject electricityObject;
     public GameObject explosionObject;
-    public GameObject smokeObject;
+    public GameObject[] smokeObject;
 
     [Header("Settings")]
     public float emissionFadeDuration = 1f;
@@ -27,7 +27,7 @@ public class Meteorite : MonoBehaviour
 
     private Collider rockCollider;
     private Color originalEmissionColor;
-    private ParticleSystem smokeParticle;
+    private ParticleSystem[] smokeParticles;
     private bool activated = false;
 
     void Start()
@@ -37,9 +37,13 @@ public class Meteorite : MonoBehaviour
 
         originalEmissionColor = rockMat.GetColor("_EmissionColor");
 
-        smokeParticle = smokeObject.GetComponent<ParticleSystem>();
-        var em = smokeParticle.emission;
-        em.rateOverTime = 0f;
+        smokeParticles = new ParticleSystem[smokeObject.Length];
+        for (int i = 0; i < smokeObject.Length; i++)
+        {
+            smokeParticles[i] = smokeObject[i].GetComponent<ParticleSystem>();
+            var em = smokeParticles[i].emission;
+            em.rateOverTime = 0f;
+        }
     }
 
     void OnDisable()
@@ -98,14 +102,22 @@ public class Meteorite : MonoBehaviour
 
     IEnumerator AnimateSmokeRate(float from, float to, float duration)
     {
-        var em = smokeParticle.emission;
         float elapsed = 0f;
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            em.rateOverTime = Mathf.Lerp(from, to, elapsed / duration);
+            float rate = Mathf.Lerp(from, to, elapsed / duration);
+            foreach (var ps in smokeParticles)
+            {
+                var em = ps.emission;
+                em.rateOverTime = rate;
+            }
             yield return null;
         }
-        em.rateOverTime = to;
+        foreach (var ps in smokeParticles)
+        {
+            var em = ps.emission;
+            em.rateOverTime = to;
+        }
     }
 }

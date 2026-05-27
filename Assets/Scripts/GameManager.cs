@@ -26,6 +26,16 @@ public class GameManager : MonoBehaviour
     public int maxBossAttacks = 3;
     private int bossAttackCount = 0;
 
+    [Header("Audio")]
+    public SfxCue playerDeathSfx;
+
+    [Header("Boss Defeat / Next Scene")]
+    [Tooltip("勾選：Boss 死後切到下個場景；不勾：留在原場景")]
+    public bool switchSceneAfterDeath = false;
+    public string nextSceneName;
+    [Tooltip("死亡動畫播完後，等幾秒再切場景")]
+    public float delayAfterDeath = 0f;
+
     private Turn currentTurn = Turn.Player;
     private bool isBossAttacking = false;
     private bool gameStarted = false;
@@ -178,8 +188,47 @@ public class GameManager : MonoBehaviour
             javelinThrow.ResetJavelin();
     }
 
+    // 由死亡動畫尾端的 Animation Event 觸發
+    public void OnBossDefeated()
+    {
+        if (!switchSceneAfterDeath) return; // 選擇留在原場景
+
+        StartCoroutine(NextSceneSequence());
+    }
+
+    IEnumerator NextSceneSequence()
+    {
+        if (delayAfterDeath > 0f)
+            yield return new WaitForSeconds(delayAfterDeath);
+
+
+        fadeUI.FadeOut();
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.FadeOutMusic(fadeUI.fadeDuration);
+        yield return new WaitForSeconds(fadeUI.fadeDuration);
+
+
+        if (string.IsNullOrEmpty(nextSceneName))
+        {
+            Debug.LogWarning("nextSceneName 未設定，無法切換場景。");
+            yield break;
+        }
+
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(nextSceneName);
+    }
+
     IEnumerator GameOverSequence()
     {
+        // 記錄死亡音效預計播完的時間點（含延遲 + 音檔長度）
+        float deathSfxEnd = 0f;
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFX(playerDeathSfx);
+            if (playerDeathSfx != null && playerDeathSfx.clip != null)
+                deathSfxEnd = Time.unscaledTime + playerDeathSfx.delay + playerDeathSfx.clip.length;
+        }
+
         if (postProcessingController != null)
             yield return StartCoroutine(postProcessingController.GameOverEffect(gameOverDelay));
         else
@@ -188,8 +237,14 @@ public class GameManager : MonoBehaviour
         if (fadeUI != null)
         {
             fadeUI.FadeOut();
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.FadeOutMusic(fadeUI.fadeDuration);
             yield return new WaitForSeconds(fadeUI.fadeDuration);
         }
+
+        // 維持黑畫面，等死亡音效播完再重置（避免重生後還聽到殘音）
+        while (Time.unscaledTime < deathSfxEnd)
+            yield return null;
 
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
