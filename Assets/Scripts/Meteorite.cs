@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 using System.Collections;
 
 public class Meteorite : MonoBehaviour
@@ -22,6 +23,9 @@ public class Meteorite : MonoBehaviour
 
     [Header("Boss Defeat")]
     public BossDefeatTransition bossDefeatTransition;
+
+    [Header("Events")]
+    public UnityEvent onSequenceComplete;   // fires when the meteorite sequence fully finishes
 
     public Material rockMat;
 
@@ -98,6 +102,8 @@ public class Meteorite : MonoBehaviour
 
         yield return new WaitForSeconds(smokePeakDuration);
         yield return StartCoroutine(AnimateSmokeRate(smokePeakRate, 0f, smokeRampDownDuration));
+
+        onSequenceComplete?.Invoke();
     }
 
     IEnumerator AnimateSmokeRate(float from, float to, float duration)
