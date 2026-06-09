@@ -4,20 +4,28 @@ public class ChargingArea : MonoBehaviour
 {
     [Header("References")]
     public OVRInput.Controller controllerHand = OVRInput.Controller.LTouch;
-    public ParticleSystem circleEffect;
     public JavelinThrow javelinThrow;
 
-    [Header("Colors")]
-    public Color defaultColor = new Color(1f, 1f, 1f, 15f / 255f);
-    public Color inZoneColor = new Color(1f, 1f, 0f, 15f / 255f);
+    [Tooltip("頭部參考 Transform（指派 OVRCameraRig 的 CenterEyeAnchor）。若為 null 會 fallback 到 Camera.main。")]
+    public Transform head;
+
+    [Header("Throw Pose Zone (head-relative, yaw-only)")]
+    [Tooltip("至少在頭部右側多少公尺（0 = 只要在後面、不限定多右）")]
+    public float rightMin = 0.15f;
+    [Tooltip("至少在頭部後方多少公尺")]
+    public float behindMin = 0.05f;
+    [Tooltip("相對頭部高度下限（約耳/肩高以上即可）")]
+    public float heightMin = -0.3f;
+    [Tooltip("與頭部的最大距離（手臂可及範圍，避免遠處誤判）。橘色球的半徑就是這個值。")]
+    public float maxDistance = 1.5f;
+    public bool drawDebug = true;
 
     [Header("Effects")]
     public GameObject chargeEffect;
     public GameObject[] finishEffects;
 
     [Header("Audio")]
-    public AudioSource chargeSource; // 蓄力音效（進入範圍時播一次，不 loop）
-
+    public AudioSource chargeSource;
     private bool isJavelinInZone = false;
     private bool isCharged = false;
     private float accumulateTimer = 0f;
@@ -35,10 +43,25 @@ public class ChargingArea : MonoBehaviour
         }
     }
 
+    void Start()
+    {
+        if (javelinThrow != null)
+            javelinEffects = javelinThrow.GetComponent<JavelinEffects>();
+        if (head == null && Camera.main != null)
+            head = Camera.main.transform;
+    }
+
     void Update()
     {
         bool active = !(javelinThrow != null && javelinThrow.HasThrown())
                    && !(GameManager.Instance != null && !GameManager.Instance.IsPlayerTurn());
+
+        bool inZoneNow = active && IsJavelinInThrowPose();
+
+        if (!inZoneNow && isJavelinInZone && !isCharged)
+            ResetAccumulation();
+
+        isJavelinInZone = inZoneNow;
 
         if (active)
         {
@@ -71,62 +94,43 @@ public class ChargingArea : MonoBehaviour
         UpdateChargeSound(active);
     }
 
+    bool IsJavelinInThrowPose()
+    {
+        if (head == null || javelinThrow == null) return false;
+
+        Vector3 offset = javelinThrow.transform.position - head.position;
+
+        // 只取水平(yaw)基底，忽略 pitch/roll
+        Vector3 fwd = head.forward; fwd.y = 0f; fwd.Normalize();
+        Vector3 right = Vector3.Cross(Vector3.up, fwd);
+
+        float rightAmt = Vector3.Dot(offset, right);
+        float fwdAmt = Vector3.Dot(offset, fwd);
+        float upAmt = offset.y;
+
+        return rightAmt >= rightMin
+            && fwdAmt <= -behindMin
+            && upAmt >= heightMin
+            && offset.magnitude <= maxDistance;
+    }
+
     void UpdateChargeSound(bool active)
     {
         if (chargeSource == null) return;
 
-        bool chargeStart = active && isJavelinInZone && !isCharged; // 可開始蓄力的狀態
+        bool chargeStart = active && isJavelinInZone && !isCharged;
         bool inZone = active && isJavelinInZone;
 
-        // 進入蓄力狀態的瞬間 → 播一次（已蓄滿時進範圍不會觸發）
+
         if (chargeStart && !wasChargeStart)
             chargeSource.Play();
 
-        // 離開區域 → 停止（留在範圍內則讓它自然播完）
+
         if (!inZone && wasInZone)
             chargeSource.Stop();
 
         wasChargeStart = chargeStart;
         wasInZone = inZone;
-    }
-
-    void OnTriggerEnter(Collider other)
-    {
-        var javelin = other.GetComponentInParent<JavelinThrow>();
-        if (javelin != null)
-        {
-            isJavelinInZone = true;
-            javelinEffects = javelin.GetComponent<JavelinEffects>();
-            SetCircleColor(inZoneColor);
-        }
-    }
-
-    void OnTriggerExit(Collider other)
-    {
-        if (other.GetComponentInParent<JavelinThrow>() != null)
-        {
-            isJavelinInZone = false;
-            SetCircleColor(defaultColor);
-            if (!isCharged) ResetAccumulation();
-        }
-    }
-
-    void SetCircleColor(Color color)
-    {
-        if (circleEffect != null)
-        {
-            var main = circleEffect.main;
-            main.startColor = color;
-
-            // 強制已存在的粒子也變色
-            ParticleSystem.Particle[] particles = new ParticleSystem.Particle[circleEffect.particleCount];
-            int count = circleEffect.GetParticles(particles);
-            for (int i = 0; i < count; i++)
-            {
-                particles[i].startColor = color;
-            }
-            circleEffect.SetParticles(particles, count);
-        }
     }
 
     void ResetAccumulation()
@@ -145,7 +149,43 @@ public class ChargingArea : MonoBehaviour
     public void ConsumeCharge()
     {
         isCharged = false;
-        SetCircleColor(defaultColor);
         ResetAccumulation();
     }
+
+#if UNITY_EDITOR
+    void OnDrawGizmosSelected()
+    {
+        if (!drawDebug || head == null) return;
+
+        Vector3 fwd = head.forward; fwd.y = 0f; fwd.Normalize();
+        Vector3 right = Vector3.Cross(Vector3.up, fwd);
+
+        // 頭部位置
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(head.position, 0.08f);
+
+        // 藍線指向前方（球的「後半邊」才是可蓄力方向參考）
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawLine(head.position, head.position + fwd * 0.5f);
+
+        // 橘色點雲 = 真正的可蓄力區域（右+後+高度，且在 maxDistance 內）
+        // 與 IsJavelinInThrowPose 的條件完全一致，前方不會被包含
+        Gizmos.color = new Color(1f, 0.5f, 0f, 1f);
+        const float step = 0.2f;
+        for (float r = rightMin; r <= maxDistance; r += step)
+            for (float b = behindMin; b <= maxDistance; b += step)
+                for (float u = heightMin; u <= maxDistance; u += step)
+                {
+                    Vector3 local = right * r - fwd * b + Vector3.up * u;
+                    if (local.magnitude > maxDistance) continue;
+                    Gizmos.DrawCube(head.position + local, Vector3.one * 0.04f);
+                }
+
+        if (javelinThrow != null)
+        {
+            Gizmos.color = IsJavelinInThrowPose() ? Color.green : Color.red;
+            Gizmos.DrawWireSphere(javelinThrow.transform.position, 0.06f);
+        }
+    }
+#endif
 }
