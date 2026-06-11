@@ -6,8 +6,11 @@ public class ChargingArea : MonoBehaviour
     public OVRInput.Controller controllerHand = OVRInput.Controller.LTouch;
     public JavelinThrow javelinThrow;
 
-    [Tooltip("頭部參考 Transform（指派 OVRCameraRig 的 CenterEyeAnchor）。若為 null 會 fallback 到 Camera.main。")]
+    [Tooltip("頭部參考 Transform（指派 OVRCameraRig 的 CenterEyeAnchor）。若為 null 會 fallback 到 Camera.main。用於蓄力區的「位置原點」。")]
     public Transform head;
+
+    [Tooltip("方向參考 Transform（指派 OVRCameraRig 根節點 / TrackingSpace）。蓄力區的朝向(yaw)會跟著它，而不是跟著頭部轉動，避免轉頭就誤觸發。留空則 fallback 回 head（舊行為）。")]
+    public Transform orientationReference;
 
     [Header("Throw Pose Zone (head-relative, yaw-only)")]
     [Tooltip("至少在頭部右側多少公尺（0 = 只要在後面、不限定多右）")]
@@ -94,14 +97,17 @@ public class ChargingArea : MonoBehaviour
         UpdateChargeSound(active);
     }
 
+    // 朝向(yaw)基底用身體/遊玩空間，而非頭部視線；位置原點仍用頭部。
+    Transform OrientationRef => orientationReference != null ? orientationReference : head;
+
     bool IsJavelinInThrowPose()
     {
         if (head == null || javelinThrow == null) return false;
 
         Vector3 offset = javelinThrow.transform.position - head.position;
 
-        // 只取水平(yaw)基底，忽略 pitch/roll
-        Vector3 fwd = head.forward; fwd.y = 0f; fwd.Normalize();
+        // 只取水平(yaw)基底，忽略 pitch/roll；用身體朝向，轉頭不影響蓄力區
+        Vector3 fwd = OrientationRef.forward; fwd.y = 0f; fwd.Normalize();
         Vector3 right = Vector3.Cross(Vector3.up, fwd);
 
         float rightAmt = Vector3.Dot(offset, right);
@@ -157,7 +163,7 @@ public class ChargingArea : MonoBehaviour
     {
         if (!drawDebug || head == null) return;
 
-        Vector3 fwd = head.forward; fwd.y = 0f; fwd.Normalize();
+        Vector3 fwd = OrientationRef.forward; fwd.y = 0f; fwd.Normalize();
         Vector3 right = Vector3.Cross(Vector3.up, fwd);
 
         // 頭部位置

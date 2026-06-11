@@ -39907,7 +39907,8 @@ MonoBehaviour:
   controllerHand: 2
   javelinThrow: {fileID: 1499963516}
   head: {fileID: 1684935457}
-  rightMin: 0.1
+  orientationReference: {fileID: 393937284}
+  rightMin: 0.2
   behindMin: 0.1
   heightMin: -0.15
   maxDistance: 2.5
@@ -49807,6 +49808,7 @@ MonoBehaviour:
   controllerHand: 1
   javelinThrow: {fileID: 0}
   head: {fileID: 0}
+  orientationReference: {fileID: 0}
   rightMin: 0.1
   behindMin: 0.1
   heightMin: -0.15
