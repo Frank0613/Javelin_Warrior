@@ -11,8 +11,12 @@ public class BossPatrol : MonoBehaviour
     public float idleAfterWalk = 1f;
     public float idleBeforeAngry = 0.3f;
 
+    [Header("Audio")]
+    public SfxCue walkSfx;                  // looped continuously while the boss is walking
+
     private Animator animator;
     private BossHealth bossHealth;
+    private AudioSource walkSource;         // dedicated looping source so we can stop it instantly
     private bool isPatrolling = false;
     private bool currentDirRight = true;
     private int walkCount = 0;
@@ -29,13 +33,44 @@ public class BossPatrol : MonoBehaviour
         initialRotation = transform.rotation;
         initialPosition = transform.position;
         worldRight = transform.right;
+
+        // Dedicated looping source for the walk loop (separate from AudioManager's
+        // one-shot SFX so we can stop it the instant the boss stops moving).
+        walkSource = gameObject.AddComponent<AudioSource>();
+        walkSource.loop = true;
+        walkSource.playOnAwake = false;
+        if (walkSfx != null) walkSource.clip = walkSfx.clip;
+    }
+
+    // Single point of truth for the walk state: drives the animator and the walk loop
+    // audio together, so the sound starts/stops exactly when the boss does.
+    void SetWalking(bool walking)
+    {
+        animator.SetBool("walk", walking);
+
+        if (walkSource == null || walkSource.clip == null) return;
+
+        if (walking)
+        {
+            if (!walkSource.isPlaying)
+            {
+                // Match AudioManager's SFX volume (master is applied globally via AudioListener).
+                float sfxVol = AudioManager.Instance != null ? AudioManager.Instance.sfxVolume : 1f;
+                walkSource.volume = sfxVol * (walkSfx != null ? walkSfx.volume : 1f);
+                walkSource.Play();
+            }
+        }
+        else if (walkSource.isPlaying)
+        {
+            walkSource.Stop();
+        }
     }
 
     public void StartPatrol()
     {
         if (patrolCoroutine != null) StopCoroutine(patrolCoroutine);
         isPatrolling = true;
-        animator.SetBool("walk", false);
+        SetWalking(false);
         animator.ResetTrigger("angry");
         patrolCoroutine = StartCoroutine(PatrolLoop());
     }
@@ -48,7 +83,7 @@ public class BossPatrol : MonoBehaviour
             StopCoroutine(patrolCoroutine);
             patrolCoroutine = null;
         }
-        animator.SetBool("walk", false);
+        SetWalking(false);
         animator.ResetTrigger("angry");
     }
 
@@ -60,7 +95,7 @@ public class BossPatrol : MonoBehaviour
             StopCoroutine(patrolCoroutine);
             patrolCoroutine = null;
         }
-        animator.SetBool("walk", false);
+        SetWalking(false);
         animator.ResetTrigger("angry");
 
         Quaternion targetRot = initialRotation;
@@ -88,7 +123,7 @@ public class BossPatrol : MonoBehaviour
             if (!isPatrolling) yield break;
 
             // 3. 走到目標位置
-            animator.SetBool("walk", true);
+            SetWalking(true);
             Vector3 moveDir = currentDirRight ? worldRight : -worldRight;
 
             while (Vector3.Dot(targetPos - transform.position, moveDir) > 0.05f && isPatrolling)
@@ -98,7 +133,7 @@ public class BossPatrol : MonoBehaviour
             }
 
             // 4. 停止走
-            animator.SetBool("walk", false);
+            SetWalking(false);
             walkCount++;
 
             // 5. Idle

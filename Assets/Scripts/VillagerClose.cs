@@ -14,16 +14,21 @@ public class VillagerClose : MonoBehaviour
     [Header("Fade (reused FadeUI)")]
     public FadeUI fadeUI;                    // full-screen fade-to-black overlay
 
+    [Header("Victory BGM")]
+    public BgmCue victoryBgm;                // crossfades in as the smoke clears (sequence complete)
+
     [Header("Player camera")]
     public Transform cameraRig;             // rotated while the screen is black
     public float cameraTurnAngle = 90f;     // degrees to rotate the rig (around Y)
 
     [Header("Villager")]
     public GameObject villager;             // revealed while the screen is black
-    public Animator villagerAnimator;       // drives run/idle (auto-fetched if empty)
+    public Animator villagerAnimator;       // drives run/idle/dance (auto-fetched if empty)
     public string runTrigger = "Run";
     public string idleTrigger = "Idle";
-    public Transform runTarget;             // where the villager runs to
+    public string danceTrigger = "Dance";   // played once the villager reaches runTarget
+    public Transform[] pathWaypoints;       // optional route run through in order before runTarget (leave empty for a straight line)
+    public Transform runTarget;             // final spot the villager runs to
     public float moveSpeed = 2f;            // running speed (m/s)
     public float turnSpeed = 360f;          // turning angular speed (deg/s)
     public float arriveDistance = 0.1f;     // distance to target counted as "arrived" (m)
@@ -31,6 +36,7 @@ public class VillagerClose : MonoBehaviour
     [Header("Dialogue")]
     public CanvasGroup dialogueCanvas;      // group; starts hidden (alpha 0)
     public GameObject dialogueButton;       // single dialogue button
+    public SfxCue villageTalkSfx;           // played once when the dialogue button appears
     public float dialogueFadeDuration = 0.5f;
     public float afterClickDelay = 1f;      // wait after the player clicks before fading out
     public KeyCode dialogueKey = KeyCode.K; // keyboard fallback for testing without VR
@@ -75,6 +81,11 @@ public class VillagerClose : MonoBehaviour
 
     IEnumerator PlayClose()
     {
+        // The smoke has just cleared (this runs off Meteorite.onSequenceComplete):
+        // crossfade from the battle BGM to the victory BGM.
+        if (victoryBgm != null && victoryBgm.clip != null)
+            AudioManager.Ensure().PlayMusic(victoryBgm);
+
         // 1. Hold after the meteorite sequence finishes.
         yield return new WaitForSeconds(startDelay);
 
@@ -89,12 +100,14 @@ public class VillagerClose : MonoBehaviour
         // 4. Fade back in.
         yield return StartCoroutine(FadeScreen(false));
 
-        // 5. Villager runs to the target, then idles.
+        // 5. Villager runs to the target, then dances.
         if (villagerAnimator != null) villagerAnimator.SetTrigger(runTrigger);
         yield return StartCoroutine(RunToTarget());
-        if (villagerAnimator != null) villagerAnimator.SetTrigger(idleTrigger);
+        if (villagerAnimator != null) villagerAnimator.SetTrigger(danceTrigger);
 
         // 6. Show the dialogue; the rest continues from the button click handler.
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(villageTalkSfx);
         yield return StartCoroutine(FadeCanvas(dialogueCanvas, 0f, 1f, dialogueFadeDuration));
         if (dialogueCanvas != null)
         {
@@ -137,17 +150,35 @@ public class VillagerClose : MonoBehaviour
             SceneManager.LoadScene(returnSceneName);
     }
 
-    // Run toward runTarget until within arriveDistance, keeping facing it.
+    // Run through each waypoint in order (if any), then finish at runTarget.
+    // Straight segments between points; add more points to shape a curve.
     IEnumerator RunToTarget()
     {
-        if (villager == null || runTarget == null) yield break;
+        if (villager == null) yield break;
+
+        if (pathWaypoints != null)
+        {
+            foreach (Transform wp in pathWaypoints)
+            {
+                if (wp == null) continue;
+                yield return StartCoroutine(MoveTo(wp.position));
+            }
+        }
+
+        if (runTarget != null)
+            yield return StartCoroutine(MoveTo(runTarget.position));
+    }
+
+    // Move toward a single point until within arriveDistance, keeping facing it.
+    IEnumerator MoveTo(Vector3 worldPos)
+    {
         Transform t = villager.transform;
 
         while (true)
         {
             Vector3 pos = t.position;
             // Move on the horizontal plane only, keeping current height (assumes flat ground).
-            Vector3 dest = new Vector3(runTarget.position.x, pos.y, runTarget.position.z);
+            Vector3 dest = new Vector3(worldPos.x, pos.y, worldPos.z);
 
             if ((dest - pos).sqrMagnitude <= arriveDistance * arriveDistance)
                 break;

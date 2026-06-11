@@ -53,13 +53,13 @@ Material:
     - FlareDensity: 2500
     - FlarePower: 16
     - FlareSpeed: 1
-    - FoamAmount: 0.1
+    - FoamAmount: 0
     - FoamCut: 2
-    - FoamPosition: 5
+    - FoamPosition: 1
     - FoamScale: 5000
     - FoamSpeed: 50
     - NormalSpeed: 0.05
-    - NormalStrength: 0.2
+    - NormalStrength: 1
     - NormalTiling: 40
     - Smoothness: 1
     - Strength: 0.25
@@ -85,11 +85,11 @@ Material:
     - _QueueOffset: 0
     m_Colors:
     - Color_44E23EC9: {r: 0.9622641, g: 0.9932726, b: 1, a: 0.8666667}
-    - DeepColor: {r: 0.18823528, g: 0.43619674, b: 0.5568628, a: 0.9411765}
+    - DeepColor: {r: 0.18823525, g: 0.4361967, b: 0.5568628, a: 1}
     - DeepFoamColor: {r: 0.6226415, g: 0.2995728, b: 0.2995728, a: 0.92941177}
     - FlareColor: {r: 0.41568628, g: 0.41568628, b: 0.41568628, a: 1}
-    - FoamColor: {r: 1, g: 1, b: 1, a: 0.9019608}
-    - ShallowColor: {r: 0.27058825, g: 0.6431373, b: 0.6028279, a: 0.7254902}
+    - FoamColor: {r: 1, g: 1, b: 1, a: 0.29411766}
+    - ShallowColor: {r: 0.2705882, g: 0.6431373, b: 0.60282785, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &6977689666769141268

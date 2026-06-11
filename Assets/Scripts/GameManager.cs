@@ -28,6 +28,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Audio")]
     public SfxCue playerDeathSfx;
+    public SfxCue bossShowSfx;      // played once as the boss showup animation begins
 
     [Header("Boss Defeat / Next Scene")]
     [Tooltip("勾選：Boss 死後切到下個場景；不勾：留在原場景")]
@@ -52,6 +53,10 @@ public class GameManager : MonoBehaviour
 
     IEnumerator WaitForShowup()
     {
+        // Boss showup animation is playing from scene start: play its SFX in sync.
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(bossShowSfx);
+
         if (javelinThrow != null)
         {
             foreach (var r in javelinThrow.javelinMeshRenderers)

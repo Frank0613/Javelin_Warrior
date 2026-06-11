@@ -24,13 +24,26 @@ public class Meteorite : MonoBehaviour
     [Header("Boss Defeat")]
     public BossDefeatTransition bossDefeatTransition;
 
+    [Header("Audio")]
+    public SfxCue bossHurtSfx;              // played once when the meteorite rock is hit
+    public SfxCue electricitySfx;           // when the electricity turns on
+    public SfxCue explosionSfx;             // synced with the explosion
+    public SfxCue whooshSfx;                // played on each smoke ramp (whoosh)
+
     [Header("Events")]
     public UnityEvent onSequenceComplete;   // fires when the meteorite sequence fully finishes
 
     public Material rockMat;
 
+    [Header("Flashing Material")]
+    public Material flashMat;               // material whose emission pulses to look like it's flashing
+    public float flashMinIntensity = 1f;    // emission multiplier low point
+    public float flashMaxIntensity = 3f;    // emission multiplier high point
+    public float flashSpeed = 2f;           // how fast it ping-pongs
+
     private Collider rockCollider;
     private Color originalEmissionColor;
+    private Color flashBaseEmission;        // flashMat's authored emission color (restored on exit)
     private ParticleSystem[] smokeParticles;
     private bool activated = false;
 
@@ -40,6 +53,12 @@ public class Meteorite : MonoBehaviour
         rockCollider.enabled = false;
 
         originalEmissionColor = rockMat.GetColor("_EmissionColor");
+
+        if (flashMat != null)
+        {
+            flashBaseEmission = flashMat.GetColor("_EmissionColor");
+            flashMat.EnableKeyword("_EMISSION");
+        }
 
         smokeParticles = new ParticleSystem[smokeObject.Length];
         for (int i = 0; i < smokeObject.Length; i++)
@@ -53,17 +72,27 @@ public class Meteorite : MonoBehaviour
     void OnDisable()
     {
         rockMat.SetColor("_EmissionColor", originalEmissionColor);
+        if (flashMat != null) flashMat.SetColor("_EmissionColor", flashBaseEmission);
     }
 
     void OnApplicationQuit()
     {
         rockMat.SetColor("_EmissionColor", originalEmissionColor);
+        if (flashMat != null) flashMat.SetColor("_EmissionColor", flashBaseEmission);
     }
 
     void Update()
     {
         if (!activated && !rockCollider.enabled && bossHealth != null && bossHealth.IsDead())
             rockCollider.enabled = true;
+
+        // Pulse the flash material's emission, ping-ponging the intensity for a flicker.
+        if (flashMat != null)
+        {
+            float intensity = flashMinIntensity
+                + Mathf.PingPong(Time.time * flashSpeed, flashMaxIntensity - flashMinIntensity);
+            flashMat.SetColor("_EmissionColor", flashBaseEmission * intensity);
+        }
     }
 
     public void OnRockHit()
@@ -71,6 +100,8 @@ public class Meteorite : MonoBehaviour
         if (activated) return;
         activated = true;
         rockCollider.enabled = false;
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(bossHurtSfx);
         StartCoroutine(MeteoriteSequence());
     }
 
@@ -88,13 +119,19 @@ public class Meteorite : MonoBehaviour
         rockMat.SetColor("_EmissionColor", Color.black);
 
         electricityObject.SetActive(true);
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(electricitySfx);
 
         yield return new WaitForSeconds(electricityToExplosionDelay);
 
         explosionObject.SetActive(true);
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(explosionSfx);
         mainRock.SetActive(false);
         electricityObject.SetActive(false);
 
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(whooshSfx);
         yield return StartCoroutine(AnimateSmokeRate(0f, smokePeakRate, smokeRampUpDuration));
 
         if (bossDefeatTransition != null)

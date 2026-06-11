@@ -27,6 +27,7 @@ public class BossHealth : MonoBehaviour
 
     [Header("Audio")]
     public SfxCue hurtSfx;
+    public SfxCue deathSfx;     // played once when the boss dies
 
     private float currentHealth = 100f;
     private Animator animator;
@@ -79,6 +80,8 @@ public class BossHealth : MonoBehaviour
             healthCanvas.SetActive(false);
             StartCoroutine(FadeCanvas(0f));
             animator.SetTrigger("die");
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlaySFX(deathSfx);
             var patrol = GetComponent<BossPatrol>();
             if (patrol != null) patrol.StopPatrol();
             DisableBodyColliders();

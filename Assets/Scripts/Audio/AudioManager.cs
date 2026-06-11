@@ -35,6 +35,9 @@ public class AudioManager : MonoBehaviour
     private const string MusicVolKey = "MusicVolume";
     private const string SfxVolKey = "SfxVolume";
 
+    // 只追蹤「音樂」協程，停音樂時就不會誤砍到 SFX 的延遲協程
+    private Coroutine musicCoroutine;
+
     void Awake()
     {
         // 常駐單例：第一個存活，之後場景帶進來的重複物件自我銷毀
@@ -89,8 +92,8 @@ public class AudioManager : MonoBehaviour
         if (cue == null || cue.clip == null || musicSource == null) return;
         if (musicSource.clip == cue.clip && musicSource.isPlaying) return;
 
-        StopAllCoroutines();
-        StartCoroutine(PlayMusicRoutine(cue));
+        if (musicCoroutine != null) StopCoroutine(musicCoroutine);
+        musicCoroutine = StartCoroutine(PlayMusicRoutine(cue));
     }
 
     public void PlayMusic(AudioClip clip, bool loop = true)
@@ -98,8 +101,8 @@ public class AudioManager : MonoBehaviour
         if (clip == null || musicSource == null) return;
         if (musicSource.clip == clip && musicSource.isPlaying) return; // 同一首正在播就不重來
 
-        StopAllCoroutines();
-        StartCoroutine(CrossfadeMusic(clip, loop));
+        if (musicCoroutine != null) StopCoroutine(musicCoroutine);
+        musicCoroutine = StartCoroutine(CrossfadeMusic(clip, loop));
     }
 
     IEnumerator PlayMusicRoutine(BgmCue cue)
@@ -111,7 +114,7 @@ public class AudioManager : MonoBehaviour
 
     public void StopMusic()
     {
-        StopAllCoroutines();
+        if (musicCoroutine != null) StopCoroutine(musicCoroutine);
         if (musicSource != null) musicSource.Stop();
     }
 
@@ -119,8 +122,8 @@ public class AudioManager : MonoBehaviour
     public void FadeOutMusic(float duration = -1f)
     {
         if (musicSource == null || !musicSource.isPlaying) return;
-        StopAllCoroutines();
-        StartCoroutine(FadeOutRoutine(duration < 0f ? bgmFadeDuration : duration));
+        if (musicCoroutine != null) StopCoroutine(musicCoroutine);
+        musicCoroutine = StartCoroutine(FadeOutRoutine(duration < 0f ? bgmFadeDuration : duration));
     }
 
     IEnumerator FadeOutRoutine(float duration)

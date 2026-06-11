@@ -31,6 +31,7 @@ public class VillagerIntro : MonoBehaviour
 
     [Header("Tree Boss")]
     public GameObject treeBoss;             // appears when the villager first turns; hidden at start
+    public SfxCue bossShowSfx;              // played once as the Tree Boss appears
 
     [Header("Dialogue")]
     public CanvasGroup dialogueCanvas;      // Dialogue_Canvas group; starts hidden (alpha 0)
@@ -39,6 +40,7 @@ public class VillagerIntro : MonoBehaviour
     public float cryToDialogueDelay = 2f;   // wait after crying starts before the dialogue appears
     public float dialogueFadeDuration = 0.5f; // fade in/out time for the dialogue canvas
     public Transform lookTargetAfterDialogue; // who/what to face after the dialogue ends
+    public SfxCue villageTalkSfx;           // played once each time a dialogue button appears
 
     [Header("Scene transition")]
     public FadeUI fadeUI;                   // fade-to-black overlay; reused from the rest of the game
@@ -106,6 +108,8 @@ public class VillagerIntro : MonoBehaviour
 
         // 8. After crying for a moment, fade in the dialogue and hand control to the buttons.
         yield return new WaitForSeconds(cryToDialogueDelay);
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(villageTalkSfx);
         yield return StartCoroutine(FadeCanvas(0f, 1f));
 
         if (dialogueCanvas != null)
@@ -121,6 +125,8 @@ public class VillagerIntro : MonoBehaviour
     {
         if (dialogue01 != null) dialogue01.SetActive(false);
         if (dialogue02 != null) dialogue02.SetActive(true);
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(villageTalkSfx);
     }
 
     // Hook to dialogue02's Button OnClick: close dialogue, return to idle, face the target.
@@ -142,6 +148,8 @@ public class VillagerIntro : MonoBehaviour
         yield return StartCoroutine(FadeCanvas(1f, 0f));
         animator.SetTrigger(idleTrigger);
         if (treeBoss != null) treeBoss.SetActive(true);
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(bossShowSfx);
         yield return StartCoroutine(FaceTowards(lookTargetAfterDialogue));
 
         // Hold on the final pose, then fade out and load the next scene.
