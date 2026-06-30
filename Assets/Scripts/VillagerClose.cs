@@ -177,13 +177,15 @@ public class VillagerClose : MonoBehaviour
         while (true)
         {
             Vector3 pos = t.position;
-            // Move on the horizontal plane only, keeping current height (assumes flat ground).
-            Vector3 dest = new Vector3(worldPos.x, pos.y, worldPos.z);
+            // Follow each point's height so the villager tracks terrain elevation.
+            Vector3 dest = worldPos;
 
             if ((dest - pos).sqrMagnitude <= arriveDistance * arriveDistance)
                 break;
 
+            // Face along the horizontal direction only, so slopes don't tilt the villager.
             Vector3 dir = dest - pos;
+            dir.y = 0f;
             if (dir.sqrMagnitude > 0.0001f)
             {
                 Quaternion want = Quaternion.LookRotation(dir);

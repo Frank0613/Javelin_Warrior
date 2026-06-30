@@ -16031,7 +16031,7 @@ Transform:
   m_GameObject: {fileID: 651325846}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 463.11, y: 2.69, z: 502.82}
+  m_LocalPosition: {x: 463.11, y: 2.294, z: 502.82}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -44589,7 +44589,7 @@ Transform:
   m_GameObject: {fileID: 1058982653}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 463.39, y: 2.69, z: 500.45}
+  m_LocalPosition: {x: 463.39, y: 2.4, z: 500.45}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -45246,7 +45246,7 @@ Transform:
   m_GameObject: {fileID: 1094639941}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 464.39, y: 2.69, z: 497.78}
+  m_LocalPosition: {x: 464.39, y: 2.603, z: 497.78}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -90466,7 +90466,7 @@ GameObject:
   m_Layer: 0
   m_Name: Villager_pos
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 1206586993520771344, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -90479,7 +90479,7 @@ Transform:
   m_GameObject: {fileID: 1992098754}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 462.94, y: 2.19, z: 509.52}
+  m_LocalPosition: {x: 462.94, y: 2.09, z: 509.52}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children: []
